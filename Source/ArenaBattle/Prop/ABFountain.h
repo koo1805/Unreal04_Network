@@ -21,10 +21,14 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/*
 	virtual void OnActorChannelOpen(class FInBunch& InBunch, class UNetConnection* Connection) override;
 
 	virtual bool IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const override;
 
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
+	//*/
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -39,9 +43,25 @@ public:
 	UFUNCTION()
 	void OnRep_ServerRotationYaw();
 
+	UFUNCTION()
+	void OnRep_ServerLightColor();
+
+	// Multicast RPC 함수
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCChangeLightColor(const FLinearColor& NewLightColor);
+
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void ServerRPCChangeLightColor();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCChangeLightColor(const FLinearColor& NewLightColor);
+
 	// 회전에 사용할 속성 (리플리케이션 옵션 지정)
 	UPROPERTY(ReplicatedUsing = OnRep_ServerRotationYaw)
 	float ServerRotationYaw;
+
+	UPROPERTY(ReplicatedUsing = OnRep_ServerLightColor)
+	FLinearColor ServerLightColor;
 
 	// 회전 속도
 	float RotationRate = 30.0f;
@@ -51,4 +71,10 @@ public:
 
 	// 서버로부터 데이터를 받고, 그 다음 데이터를 받았을 때까지 걸린 시간
 	float ClientTimeBetweenLastUpdate = 0.0f;
+
+	// 의도적으로 네트워크를 포화 상태로 만들기 위한 변수
+	UPROPERTY(Replicated)
+	TArray<float> BigData;
+
+	float BigDataElement = 0.0f;
 };
