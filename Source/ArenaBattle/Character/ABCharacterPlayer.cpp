@@ -240,6 +240,12 @@ void AABCharacterPlayer::SetCharacterControlData(const UABCharacterControlData* 
 
 void AABCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
+	// 공격 중에는 이동 막기
+	if (!bCanAttack)
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -262,6 +268,12 @@ void AABCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 
 void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 {
+	// 공격 중에는 이동 막기
+	if (!bCanAttack)
+	{
+		return;
+	}
+
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	float InputSizeSquared = MovementVector.SquaredLength();
@@ -386,11 +398,6 @@ void AABCharacterPlayer::AttackHitCheck()
 		const FVector End = Start + Forward * AttackRange;
 
 		bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_ABACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
-		if (HitDetected)
-		{
-			FDamageEvent DamageEvent;
-			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
-		}
 
 		// 시간 가져오기
 		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
@@ -620,10 +627,10 @@ void AABCharacterPlayer::ServerRPCAttack_Implementation(float AttackStartTime)
 	// 클라이언트 RPC 사용 -> Range-Based Loop 활용
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
-		// 플레이어 인지
+		// 공격 명령을 보낸 클라이언트 캐릭터에 대응되는 서버 측 액터 제외
 		if (PlayerController && GetController() != PlayerController)
 		{
-			// 자기가 조종하고 있는건지
+			// 리슨 서버가 제어하는 로컬 클라이언트 액터 제외
 			if (!PlayerController->IsLocalController())
 			{
 				AABCharacterPlayer* OtherPlayer = Cast<AABCharacterPlayer>(PlayerController->GetPawn());

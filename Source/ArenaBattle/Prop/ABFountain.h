@@ -72,9 +72,9 @@ public:
 	// 서버로부터 데이터를 받고, 그 다음 데이터를 받았을 때까지 걸린 시간
 	float ClientTimeBetweenLastUpdate = 0.0f;
 
-	// 의도적으로 네트워크를 포화 상태로 만들기 위한 변수
+	/* 의도적으로 네트워크를 포화 상태로 만들기 위한 변수
 	UPROPERTY(Replicated)
-	TArray<float> BigData;
+	TArray<float> BigData;	//*/
 
-	float BigDataElement = 0.0f;
+	//float BigDataElement = 0.0f;
 };

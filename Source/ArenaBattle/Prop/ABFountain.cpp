@@ -285,7 +285,7 @@ void AABFountain::Tick(float DeltaTime)
 void AABFountain::OnRep_ServerRotationYaw()
 {
 	// 로그 출력
-	AB_LOG(LogABNetwork, Log, TEXT("Yaw: %f"), ServerRotationYaw);
+	//AB_LOG(LogABNetwork, Log, TEXT("Yaw: %f"), ServerRotationYaw);
 
 	//* 서버로부터 전달 받은 "변경된 회전 값"을 적용
 	FRotator NewRotator = RootComponent->GetComponentRotation();
@@ -335,7 +335,7 @@ void AABFountain::ClientRPCChangeLightColor_Implementation(const FLinearColor& N
 bool AABFountain::ServerRPCChangeLightColor_Validate()
 {
 	// false는 검증 실패 -> 검증에 성공하면 true 반환
-	return false;
+	return true;
 }
 
 void AABFountain::ServerRPCChangeLightColor_Implementation()
